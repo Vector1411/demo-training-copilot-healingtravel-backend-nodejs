@@ -1,0 +1,349 @@
+{
+  "info": {
+    "name": "HealingTravel Backend - API Collection",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "Postman collection for all API endpoints. Replace {{baseUrl}} with your server (e.g. http://localhost:3000)."
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:3000" },
+    { "key": "adminToken", "value": "" },
+    { "key": "tourId", "value": "tour_001" }
+  ],
+  "item": [
+    {
+      "name": "Public APIs",
+      "item": [
+        {
+          "name": "GET /api/v1/tours - List open tours",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/tours",
+              "host": ["{{baseUrl}}"],
+              "path": ["api","v1","tours"]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "pm.test('Status code is 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Response success flag is true', () => pm.expect(res.success).to.eql(true));",
+                  "pm.test('Data is an array', () => pm.expect(Array.isArray(res.data)).to.be.true);",
+                  "if (res.data.length > 0) {",
+                  "  pm.test('Tour item has expected keys', () => {",
+                  "    const t = res.data[0];",
+                  "    pm.expect(t).to.have.property('id');",
+                  "    pm.expect(t).to.have.property('title');",
+                  "    pm.expect(t).to.have.property('startDate');",
+                  "    pm.expect(t).to.have.property('endDate');",
+                  "    pm.expect(t).to.have.property('status');",
+                  "  });",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "GET /api/v1/tours/:tourId - Tour detail",
+          "request": {
+            "method": "GET",
+            "header": [ { "key": "Accept", "value": "application/json" } ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/tours/{{tourId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api","v1","tours","{{tourId}}"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200 or 404', () => pm.expect([200,404]).to.include(pm.response.code));",
+                  "const res = pm.response.json();",
+                  "pm.test('Response has success boolean', () => pm.expect(res).to.have.property('success'));",
+                  "if (pm.response.code === 200) {",
+                  "  pm.test('Success true and data has id/title', () => {",
+                  "    pm.expect(res.success).to.eql(true);",
+                  "    pm.expect(res.data).to.have.property('id');",
+                  "    pm.expect(res.data).to.have.property('title');",
+                  "  });",
+                  "} else if (pm.response.code === 404) {",
+                  "  pm.test('Not found returns TOUR_NOT_FOUND code', () => {",
+                  "    pm.expect(res.errorCode).to.eql('TOUR_NOT_FOUND');",
+                  "  });",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "POST /api/v1/registrations - Create registration",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"tourId\": \"{{tourId}}\",\n  \"fullName\": \"Nguyen Van A\",\n  \"phone\": \"0909123456\",\n  \"email\": \"a@example.com\",\n  \"note\": \"Looking forward to the trip\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/registrations",
+              "host": ["{{baseUrl}}"],
+              "path": ["api","v1","registrations"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200 or 400', () => pm.expect([200,400]).to.include(pm.response.code));",
+                  "const res = pm.response.json();",
+                  "if (pm.response.code === 200) {",
+                  "  pm.test('Registration succeeded', () => pm.expect(res.success).to.eql(true));",
+                  "} else {",
+                  "  pm.test('Invalid input uses INVALID_INPUT or TOUR_CLOSED', () => pm.expect(['INVALID_INPUT','TOUR_CLOSED']).to.include(res.errorCode));",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Admin APIs",
+      "item": [
+        {
+          "name": "POST /api/v1/admin/login - Admin login",
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@company.com\",\n  \"password\": \"password123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/admin/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["api","v1","admin","login"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200 or 401/501', () => pm.expect([200,401,501]).to.include(pm.response.code));",
+                  "const res = pm.response.json();",
+                  "if (pm.response.code === 200) {",
+                  "  pm.test('Response returns token and expiredAt', () => {",
+                  "    pm.expect(res.success).to.eql(true);",
+                  "    pm.expect(res.data).to.have.property('token');",
+                  "    pm.expect(res.data).to.have.property('expiredAt');",
+                  "  });",
+                  "  // store token into environment for subsequent requests",
+                  "  pm.environment.set('adminToken', res.data.token);",
+                  "} else if (pm.response.code === 401) {",
+                  "  pm.test('Auth failed returns AUTH_FAILED', () => pm.expect(res.errorCode).to.eql('AUTH_FAILED'));",
+                  "} else if (pm.response.code === 501) {",
+                  "  pm.test('Login not implemented (fail-closed)', () => pm.expect(pm.response.code).to.eql(501));",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "GET /api/v1/admin/tours - Admin list tours",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{adminToken}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/admin/tours",
+              "host": ["{{baseUrl}}"],
+              "path": ["api","v1","admin","tours"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200 or 401', () => pm.expect([200,401]).to.include(pm.response.code));",
+                  "const res = pm.response.json();",
+                  "if (pm.response.code === 200) {",
+                  "  pm.test('Success and data is array', () => {",
+                  "    pm.expect(res.success).to.eql(true);",
+                  "    pm.expect(Array.isArray(res.data)).to.be.true;",
+                  "  });",
+                  "} else {",
+                  "  pm.test('Unauthorized returns AUTH_FAILED', () => pm.expect(res.errorCode).to.eql('AUTH_FAILED'));",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "POST /api/v1/admin/tours - Create tour",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{adminToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"New Healing Retreat\",\n  \"description\": \"A restorative 3-day retreat\",\n  \"itinerary\": \"Day1...\",\n  \"startDate\": \"2026-03-01\",\n  \"endDate\": \"2026-03-03\",\n  \"price\": 3500000,\n  \"status\": \"draft\",\n  \"images\": []\n}" 
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/admin/tours",
+              "host": ["{{baseUrl}}"],
+              "path": ["api","v1","admin","tours"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200 or 401', () => pm.expect([200,401]).to.include(pm.response.code));",
+                  "const res = pm.response.json();",
+                  "if (pm.response.code === 200) {",
+                  "  pm.test('Create returned success', () => pm.expect(res.success).to.eql(true));",
+                  "  if (res.data && res.data.id) pm.environment.set('tourId', res.data.id);",
+                  "} else {",
+                  "  pm.test('Unauthorized returns AUTH_FAILED', () => pm.expect(res.errorCode).to.eql('AUTH_FAILED'));",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "PUT /api/v1/admin/tours/:tourId - Update tour",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{adminToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Updated Title\",\n  \"status\": \"open\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/admin/tours/{{tourId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api","v1","admin","tours","{{tourId}}"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200 or 401/404', () => pm.expect([200,401,404]).to.include(pm.response.code));",
+                  "const res = pm.response.json();",
+                  "if (pm.response.code === 200) {",
+                  "  pm.test('Update success', () => pm.expect(res.success).to.eql(true));",
+                  "} else if (pm.response.code === 404) {",
+                  "  pm.test('Not found returns TOUR_NOT_FOUND', () => pm.expect(res.errorCode).to.eql('TOUR_NOT_FOUND'));",
+                  "} else {",
+                  "  pm.test('Unauthorized returns AUTH_FAILED', () => pm.expect(res.errorCode).to.eql('AUTH_FAILED'));",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "DELETE /api/v1/admin/tours/:tourId - Delete tour",
+          "request": {
+            "method": "DELETE",
+            "header": [ { "key": "Authorization", "value": "Bearer {{adminToken}}" } ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/admin/tours/{{tourId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api","v1","admin","tours","{{tourId}}"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200 or 401/404', () => pm.expect([200,401,404]).to.include(pm.response.code));",
+                  "const res = pm.response.json();",
+                  "if (pm.response.code === 200) pm.test('Delete success', () => pm.expect(res.success).to.eql(true));",
+                  "if (pm.response.code === 404) pm.test('Not found returns TOUR_NOT_FOUND', () => pm.expect(res.errorCode).to.eql('TOUR_NOT_FOUND'));",
+                  "if (pm.response.code === 401) pm.test('Unauthorized returns AUTH_FAILED', () => pm.expect(res.errorCode).to.eql('AUTH_FAILED'));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "GET /api/v1/admin/registrations?tourId= - List registrations for tour",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{adminToken}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/admin/registrations?tourId={{tourId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api","v1","admin","registrations"],
+              "query": [ { "key": "tourId", "value": "{{tourId}}" } ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200 or 401', () => pm.expect([200,401]).to.include(pm.response.code));",
+                  "const res = pm.response.json();",
+                  "if (pm.response.code === 200) {",
+                  "  pm.test('Success and data is array', () => {",
+                  "    pm.expect(res.success).to.eql(true);",
+                  "    pm.expect(Array.isArray(res.data)).to.be.true;",
+                  "  });",
+                  "} else {",
+                  "  pm.test('Unauthorized returns AUTH_FAILED', () => pm.expect(res.errorCode).to.eql('AUTH_FAILED'));",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

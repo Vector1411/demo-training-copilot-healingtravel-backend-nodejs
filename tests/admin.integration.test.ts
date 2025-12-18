@@ -37,4 +37,35 @@ const shouldRun = Boolean(FIREBASE_KEY && ADMIN_EMAIL && ADMIN_PASSWORD);
     expect(r.body.success).toBe(true);
     expect(r.body.data).toHaveProperty('token');
   }, 20000);
+
+  it('Admin tours lifecycle: create -> update -> delete (real Firestore)', async ()=>{
+    // Sign in to get token
+    const resp = await fetch(`https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${FIREBASE_KEY}`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: ADMIN_EMAIL, password: ADMIN_PASSWORD, returnSecureToken: true })
+    });
+    expect(resp.ok).toBe(true);
+    const body = await resp.json();
+    const idToken = body.idToken as string;
+    const localId = body.localId as string;
+
+    // Ensure admin allow-list entry exists
+    const now = admin.firestore.Timestamp.now();
+    await firestore.collection('admins').doc(localId).set({ email: ADMIN_EMAIL, role: 'admin', createdAt: now });
+
+    // Create tour via API
+    const createBody = { title: 'IT Test Tour', description: 'desc', itinerary: 'it', startDate: '2025-12-20', endDate: '2025-12-22', status: 'open', price: 1000, images: ['img.jpg'] };
+    const createRes = await request(app).post('/api/v1/admin/tours').set('Authorization', `Bearer ${idToken}`).send(createBody);
+    expect(createRes.status).toBe(200);
+    const createdId = createRes.body.data.tourId as string;
+    expect(createdId).toBeTruthy();
+
+    // Update tour
+    const updateRes = await request(app).put(`/api/v1/admin/tours/${createdId}`).set('Authorization', `Bearer ${idToken}`).send({ title: 'IT Test Tour Updated' });
+    expect(updateRes.status).toBe(200);
+
+    // Delete tour
+    const delRes = await request(app).delete(`/api/v1/admin/tours/${createdId}`).set('Authorization', `Bearer ${idToken}`);
+    expect(delRes.status).toBe(200);
+  }, 20000);
 });

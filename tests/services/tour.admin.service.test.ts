@@ -10,7 +10,25 @@ describe('TourService admin operations (unit)', ()=>{
     const fakeId = 'newid';
     const spy = vi.spyOn(TourRepository.prototype, 'create').mockResolvedValue(fakeId as any);
     const svc = new TourService();
-    const r = await svc.adminCreateTour({ title:'t', description:'d', itinerary:'it', startDate:'2025-12-01', endDate:'2025-12-02', status:'open', price:100, images:[] } as any);
+    const r = await svc.adminCreateTour({
+      title: 't',
+      description: 'd',
+      itinerary: 'it',
+      location: 'Sapa, Lào Cai',
+      duration: '5 ngày 4 đêm',
+      content: {
+        introduction: 'intro',
+        schedule: 'sched',
+        activities: 'acts',
+        suitableFor: 'people',
+        notes: 'notes'
+      },
+      startDate: '2025-12-01',
+      endDate: '2025-12-02',
+      status: 'open',
+      price: 100,
+      images: []
+    } as any);
     expect(r.tourId).toBe(fakeId);
     expect(spy).toHaveBeenCalled();
   });

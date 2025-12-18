@@ -67,13 +67,17 @@ Không bao gồm:
 
 ### API-01: Lấy danh sách tour đang mở
 - **Method/Endpoint:** `GET /tours`
-- **Mục đích:** Lấy danh sách tour có trạng thái open
+- **Mục đích:** Lấy danh sách tour với các tiêu chí filter (mặc định chỉ lấy tour `open`).
 - **Sử dụng cho màn hình:** Landing Page (G-01)
 
 #### Query Params
 | Tên | Type | Bắt buộc | Mô tả |
 |---|---|---:|---|
-| status | string | No | Mặc định = `open` |
+| status | string | No | Enum `draft/open/closed`, mặc định = `open` |
+| q | string | No | Full-text search (case-insensitive) trên `title`, `description`, `itinerary`, `location`, `content.*` |
+| location | string | No | Filter theo substring (case-insensitive) trong `location` |
+| minPrice | number | No | Giá tối thiểu (>= 0); nếu có cả min/max thì `minPrice <= maxPrice` |
+| maxPrice | number | No | Giá tối đa (>= 0); nếu có cả min/max thì `minPrice >= 0` |
 
 #### Response – Success (200)
 ```json
@@ -117,8 +121,17 @@ Không bao gồm:
   "data": {
     "id": "tour_001",
     "title": "Thiền & Tái tạo năng lượng",
+    "location": "Sapa, Lào Cai",
+    "duration": "5 ngày 4 đêm",
     "description": "...",
     "itinerary": "...",
+    "content": {
+      "introduction": "...",
+      "schedule": "...",
+      "activities": "...",
+      "suitableFor": "...",
+      "notes": "..."
+    },
     "startDate": "2025-03-01",
     "endDate": "2025-03-03",
     "price": 3500000,
@@ -231,6 +244,15 @@ Skeleton hiện tại trả raw list từ Firestore và đánh dấu UNKNOWN tro
   "title": "",
   "description": "",
   "itinerary": "",
+  "location": "",
+  "duration": "",
+  "content": {
+    "introduction": "",
+    "schedule": "",
+    "activities": "",
+    "suitableFor": "",
+    "notes": ""
+  },
   "startDate": "",
   "endDate": "",
   "price": 0,
@@ -240,7 +262,7 @@ Skeleton hiện tại trả raw list từ Firestore và đánh dấu UNKNOWN tro
 ```
 
 #### Validation (API Spec)
-- `title`, `description`, `itinerary`, `dates`: bắt buộc
+- `title`, `description`, `itinerary`, `location`, `duration`, `content.*`, `dates`: bắt buộc
 
 **Thiếu trong API Spec:** response schema (id? full object?), error codes cụ thể.
 

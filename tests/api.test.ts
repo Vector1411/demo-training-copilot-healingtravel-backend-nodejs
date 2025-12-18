@@ -40,10 +40,38 @@ describe('Public Tours API', ()=>{
   });
 
   it('GET /api/v1/tours/:tourId - success', async ()=>{
-    vi.spyOn(TourRepository.prototype, 'getById').mockResolvedValue({ id:'t1', title:'T1', description:'d', itinerary:'it', startDate:fakeTimestamp('2025-03-01'), endDate:fakeTimestamp('2025-03-03'), price:1000, status:'open', images:['a','b'] } as any);
+    vi.spyOn(TourRepository.prototype, 'getById').mockResolvedValue({
+      id: 't1',
+      title: 'T1',
+      description: 'd',
+      itinerary: 'it',
+      location: 'Sapa, Lào Cai',
+      duration: '5 ngày 4 đêm',
+      content: {
+        introduction: 'intro',
+        schedule: 'sched',
+        activities: 'acts',
+        suitableFor: 'people',
+        notes: 'notes'
+      },
+      startDate: fakeTimestamp('2025-03-01'),
+      endDate: fakeTimestamp('2025-03-03'),
+      price: 1000,
+      status: 'open',
+      images: ['a','b']
+    } as any);
     const res = await request(app).get('/api/v1/tours/t1');
     expect(res.status).toBe(200);
     expect(res.body.data.tourId).toBe('t1');
+    expect(res.body.data.location).toBe('Sapa, Lào Cai');
+    expect(res.body.data.duration).toBe('5 ngày 4 đêm');
+    expect(res.body.data.content).toEqual({
+      introduction: 'intro',
+      schedule: 'sched',
+      activities: 'acts',
+      suitableFor: 'people',
+      notes: 'notes'
+    });
     expect(Array.isArray(res.body.data.images)).toBe(true);
   });
 

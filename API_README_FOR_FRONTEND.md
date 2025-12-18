@@ -114,8 +114,12 @@ const id = String(item.id ?? item._id);
 - Path Params: None
 - Query Params:
   - `status` | string enum `draft` | `open` | `closed` | OPTIONAL (omit if absent) | Zod: `TourStatusEnum.optional()`
-  - Default server-side: `open` when omitted
-  - Casting rules: send lowercase `draft|open|closed`
+    - Default server-side: `open` when omitted
+    - Casting rules: send lowercase `draft|open|closed`
+  - `q` | string | OPTIONAL (omit if absent) | full-text search (case-insensitive) trên `title`, `description`, `itinerary`, `location`, `content.*`
+  - `location` | string | OPTIONAL (omit if absent) | filter theo substring (case-insensitive) trong `location`
+  - `minPrice` | number | OPTIONAL (omit if absent) | giá tối thiểu (>= 0); querystring gửi dạng số, server coerce về number
+  - `maxPrice` | number | OPTIONAL (omit if absent) | giá tối đa (>= 0); nếu gửi cả `minPrice` và `maxPrice` thì `minPrice <= maxPrice`
 - Request Body: None
 - Response Success — envelope & inner type:
 
@@ -123,6 +127,15 @@ const id = String(item.id ?? item._id);
 interface TourSummary {
   id: string;            // normalize id = String(item.id ?? item._id)
   title: string;
+  location?: string | null;
+  duration?: string | null;
+  content?: {
+    introduction: string;
+    schedule: string;
+    activities: string;
+    suitableFor: string;
+    notes: string;
+  } | null;
   startDate: string;     // YYYY-MM-DD
   endDate: string;       // YYYY-MM-DD
   price?: number | null; // OPTIONAL (may be null)
@@ -206,8 +219,17 @@ Response (400):
 interface TourDetail {
   id: string;
   title: string;
+  location: string | null;
+  duration: string | null;
   description: string;
   itinerary: string;
+  content: {
+    introduction: string;
+    schedule: string;
+    activities: string;
+    suitableFor: string;
+    notes: string;
+  } | null;
   startDate: string; // YYYY-MM-DD
   endDate: string;   // YYYY-MM-DD
   price?: number | null;
@@ -360,11 +382,19 @@ Response (400):
 - Headers: `Authorization: Bearer <token>`, `Content-Type: application/json`
 - Request Body (Zod excerpts & nullability):
   - `title` | string | REQUIRED | NOT NULL | `z.string().min(1)`
-  - `description` | string | REQUIRED | NOT NULL | `z.string().min(1)`
-  - `itinerary` | string | REQUIRED | NOT NULL | `z.string().min(1)`
+  - `description` | string | OPTIONAL | NOT NULL | `z.string().min(1)`
+  - `itinerary` | string | OPTIONAL | NOT NULL | `z.string().min(1)`
+  - `location` | string | OPTIONAL | NOT NULL | `z.string().min(1)`
+  - `duration` | string | OPTIONAL | NOT NULL | `z.string().min(1)`
+  - `content` | object | OPTIONAL | NOT NULL | `TourContentSchema`
+    - `content.introduction` | string | OPTIONAL | `z.string().min(1)`
+    - `content.schedule` | string | OPTIONAL | `z.string().min(1)`
+    - `content.activities` | string | OPTIONAL | `z.string().min(1)`
+    - `content.suitableFor` | string | OPTIONAL | `z.string().min(1)`
+    - `content.notes` | string | OPTIONAL | `z.string().min(1)`
   - `startDate` | string | REQUIRED | NOT NULL | `z.string().min(1)` — format `YYYY-MM-DD`
   - `endDate` | string | REQUIRED | NOT NULL | `z.string().min(1)` — format `YYYY-MM-DD`
-  - `price` | number | OPTIONAL (omit if absent) | `z.number().optional()`
+  - `price` | number | REQUIRED | NOT NULL | `z.number().optional()`
   - `status` | enum | REQUIRED | NOT NULL | `z.enum(["draft","open","closed"])`
   - `images` | string[] | OPTIONAL (omit if absent) | `z.array(z.string()).optional()`
 - Response Success (CONFIRMED from `TourService`): server returns an object with created id:

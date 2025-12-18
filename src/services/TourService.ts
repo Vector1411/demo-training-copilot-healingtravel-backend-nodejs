@@ -5,10 +5,50 @@ import { AppError } from "../shared/AppError.js";
 export class TourService {
   constructor(private repo=new TourRepository()){}
 
-  async listPublicTours(status?: string){
-    const effective = status ?? "open"; // API-01 default open
+  async listPublicTours(filters?: { status?: string; q?: string; location?: string; minPrice?: number; maxPrice?: number }){
+    const effective = filters?.status ?? "open"; // API-01 default open
     try{
       const rows=await this.repo.listByStatus(effective);
+      const q = filters?.q?.toLowerCase().trim();
+      const location = filters?.location?.toLowerCase().trim();
+      const minPrice = filters?.minPrice;
+      const maxPrice = filters?.maxPrice;
+
+      let filtered = rows as any[];
+
+      if (location) {
+        filtered = filtered.filter(r => {
+          const loc = (r as any).location;
+          return typeof loc === "string" && loc.toLowerCase().includes(location);
+        });
+      }
+
+      if (typeof minPrice === "number") {
+        filtered = filtered.filter(r => typeof r.price === "number" && (r.price as number) >= minPrice);
+      }
+
+      if (typeof maxPrice === "number") {
+        filtered = filtered.filter(r => typeof r.price === "number" && (r.price as number) <= maxPrice);
+      }
+
+      if (q) {
+        filtered = filtered.filter(r => {
+          const t: any = r;
+          const fields: Array<string | undefined | null> = [
+            t.title,
+            t.description,
+            t.itinerary,
+            t.location,
+            t.content?.introduction,
+            t.content?.schedule,
+            t.content?.activities,
+            t.content?.suitableFor,
+            t.content?.notes
+          ];
+          return fields.some(v => typeof v === "string" && v.toLowerCase().includes(q));
+        });
+      }
+
       const toIso = (v:any)=>{
         try{
           if(!v) return null;
@@ -18,9 +58,11 @@ export class TourService {
         }catch(_){ }
         return null;
       };
-      return rows.map(r=>({
+      return filtered.map(r=>({
         tourId: r.id,
         title: r.title,
+          location: (r as any).location ?? null,
+          duration: (r as any).duration ?? null,
         startDate: toIso(r.startDate),
         endDate: toIso(r.endDate),
         price: r.price ?? null,
@@ -45,10 +87,18 @@ export class TourService {
       return null;
     };
     return {
-      tourId: t.id, title:t.title,description:t.description,itinerary:t.itinerary,
+      tourId: t.id,
+      title: t.title,
+      description: t.description,
+      itinerary: t.itinerary,
+      location: (t as any).location ?? null,
+      duration: (t as any).duration ?? null,
+      content: (t as any).content ?? null,
       startDate: toIso(t.startDate),
       endDate: toIso(t.endDate),
-      price:t.price ?? null,status:t.status,images:t.images ?? []
+      price: t.price ?? null,
+      status: t.status,
+      images: t.images ?? []
     };
   }
 
@@ -62,6 +112,8 @@ export class TourService {
       return {
         tourId: d.id,
         title: data.title ?? null,
+        location: data.location ?? null,
+        duration: data.duration ?? null,
         startDate: start,
         endDate: end,
         price: data.price ?? null,
@@ -75,8 +127,17 @@ export class TourService {
     const start=admin.firestore.Timestamp.fromDate(new Date(body.startDate));
     const end=admin.firestore.Timestamp.fromDate(new Date(body.endDate));
     const id=await this.repo.create({
-      title:body.title,description:body.description,itinerary:body.itinerary,
-      startDate:start,endDate:end,price:body.price,status:body.status,images:body.images
+      title: body.title,
+      description: body.description,
+      itinerary: body.itinerary,
+      location: body.location,
+      duration: body.duration,
+      content: body.content,
+      startDate: start,
+      endDate: end,
+      price: body.price,
+      status: body.status,
+      images: body.images
     });
     return { tourId: id };
   }

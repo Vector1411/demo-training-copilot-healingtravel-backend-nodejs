@@ -5,6 +5,15 @@ export type TourDoc = {
   title: string;
   description: string;
   itinerary: string;
+  location: string;
+  duration: string;
+  content: {
+    introduction: string;
+    schedule: string;
+    activities: string;
+    suitableFor: string;
+    notes: string;
+  };
   startDate: admin.firestore.Timestamp;
   endDate: admin.firestore.Timestamp;
   price?: number;

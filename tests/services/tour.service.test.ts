@@ -36,10 +36,38 @@ describe('TourService (unit)', ()=>{
   });
 
   it('getTourDetail - success mapping', async ()=>{
-    vi.spyOn(TourRepository.prototype, 'getById').mockResolvedValue({ id:'t1', title:'T1', description:'d', itinerary:'it', startDate: fakeTimestamp('2025-02-02'), endDate: fakeTimestamp('2025-02-03'), price:500, status:'open', images:['i1','i2'] } as any);
+    vi.spyOn(TourRepository.prototype, 'getById').mockResolvedValue({
+      id: 't1',
+      title: 'T1',
+      description: 'd',
+      itinerary: 'it',
+      location: 'Sapa, Lào Cai',
+      duration: '5 ngày 4 đêm',
+      content: {
+        introduction: 'intro',
+        schedule: 'sched',
+        activities: 'acts',
+        suitableFor: 'people',
+        notes: 'notes'
+      },
+      startDate: fakeTimestamp('2025-02-02'),
+      endDate: fakeTimestamp('2025-02-03'),
+      price: 500,
+      status: 'open',
+      images: ['i1','i2']
+    } as any);
     const svc = new TourService();
     const r = await svc.getTourDetail('t1');
     expect(r.tourId).toBe('t1');
+    expect(r.location).toBe('Sapa, Lào Cai');
+    expect(r.duration).toBe('5 ngày 4 đêm');
+    expect(r.content).toEqual({
+      introduction: 'intro',
+      schedule: 'sched',
+      activities: 'acts',
+      suitableFor: 'people',
+      notes: 'notes'
+    });
     expect(Array.isArray(r.images)).toBe(true);
   });
 
@@ -50,6 +78,17 @@ describe('TourService (unit)', ()=>{
     const svc = new TourService();
     const rows = await svc.adminListTours();
     expect(Array.isArray(rows)).toBe(true);
+    expect(rows[0].tourId).toBe('t1');
+  });
+
+  it('listPublicTours - applies text/location/price filters', async ()=>{
+    vi.spyOn(TourRepository.prototype, 'listByStatus').mockResolvedValue([
+      { id:'t1', title:'Thiền núi rừng', description:'Sapa retreat', itinerary:'...', location:'Sapa, Lào Cai', price:8000000, status:'open' } as any,
+      { id:'t2', title:'Yoga biển', description:'Nha Trang', itinerary:'...', location:'Nha Trang, Khánh Hòa', price:5000000, status:'open' } as any
+    ]);
+    const svc = new TourService();
+    const rows = await svc.listPublicTours({ q:'sapa', location:'Sapa', minPrice:7000000, maxPrice:9000000 });
+    expect(rows.length).toBe(1);
     expect(rows[0].tourId).toBe('t1');
   });
 });

@@ -270,7 +270,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"title\": \"New Healing Retreat\",\n  \"description\": \"A restorative 3-day retreat\",\n  \"itinerary\": \"Day1...\",\n  \"startDate\": \"2026-03-01\",\n  \"endDate\": \"2026-03-03\",\n  \"price\": 3500000,\n  \"status\": \"draft\",\n  \"images\": []\n}" 
+              "raw": "{\n  \"title\": \"New Healing Retreat\",\n  \"description\": \"A restorative 3-day retreat\",\n  \"itinerary\": \"Day1...\",\n  \"location\": \"Sapa, Lào Cai\",\n  \"duration\": \"5 ngày 4 đêm\",\n  \"content\": {\n    \"introduction\": \"Intro...\",\n    \"schedule\": \"Schedule...\",\n    \"activities\": \"Activities...\",\n    \"suitableFor\": \"Suitable for...\",\n    \"notes\": \"Notes...\"\n  },\n  \"startDate\": \"2026-03-01\",\n  \"endDate\": \"2026-03-03\",\n  \"price\": 3500000,\n  \"status\": \"draft\",\n  \"images\": []\n}" 
             },
             "url": {
               "raw": "{{baseUrl}}/api/v1/admin/tours",

@@ -19,6 +19,14 @@ Document ID: có thể dùng `tourId` như ERD hoặc `id` như PRD/API (khuyế
 | title | String | Yes | |
 | description | String | Yes | |
 | itinerary | String | Yes | |
+| location | String | Yes | Địa điểm (vd: "Sapa, Lào Cai") |
+| duration | String | Yes | Thời lượng tour (vd: "5 ngày 4 đêm") |
+| content | Object | Yes | Thông tin nội dung chi tiết |
+| content.introduction | String | Yes | Giới thiệu tổng quan chương trình |
+| content.schedule | String | Yes | Lịch trình chi tiết (có thể multi-line) |
+| content.activities | String | Yes | Danh sách hoạt động |
+| content.suitableFor | String | Yes | Đối tượng phù hợp |
+| content.notes | String | Yes | Ghi chú quan trọng |
 | startDate | Timestamp | Yes | |
 | endDate | Timestamp | Yes | |
 | price | Number | No | |

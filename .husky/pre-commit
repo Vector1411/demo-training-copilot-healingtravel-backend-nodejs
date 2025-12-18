@@ -1,0 +1,10 @@
+#!/bin/sh
+. "$(dirname "$0")/_/husky.sh"
+
+echo "Running unit tests before commit..."
+npm test || {
+  echo "Tests failed. Commit aborted." >&2
+  exit 1
+}
+
+echo "Tests passed. Continuing commit."

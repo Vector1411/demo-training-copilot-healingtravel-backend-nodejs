@@ -6,6 +6,7 @@
   "main": "dist/server.js",
   "scripts": {
     "dev": "tsx watch src/server.ts",
+    "prepare": "husky install",
     "build": "tsc -p tsconfig.json",
     "start": "node dist/server.js",
     "test": "vitest"
@@ -29,6 +30,7 @@
     "supertest": "^7.1.4",
     "tsx": "^4.16.2",
     "typescript": "^5.5.4",
-    "vitest": "^2.0.5"
+    "vitest": "^2.0.5",
+    "husky": "^8.0.0"
   }
 }

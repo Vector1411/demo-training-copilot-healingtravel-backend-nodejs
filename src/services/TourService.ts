@@ -9,13 +9,22 @@ export class TourService {
     const effective = status ?? "open"; // API-01 default open
     try{
       const rows=await this.repo.listByStatus(effective);
+      const toIso = (v:any)=>{
+        try{
+          if(!v) return null;
+          if(typeof v.toDate === 'function') return v.toDate().toISOString().slice(0,10);
+          if(typeof v._seconds === 'number') return new Date(v._seconds*1000).toISOString().slice(0,10);
+          if(typeof v === 'string') return new Date(v).toISOString().slice(0,10);
+        }catch(_){ }
+        return null;
+      };
       return rows.map(r=>({
         tourId: r.id,
-        title:r.title,
-        startDate:r.startDate.toDate().toISOString().slice(0,10),
-        endDate:r.endDate.toDate().toISOString().slice(0,10),
+        title: r.title,
+        startDate: toIso(r.startDate),
+        endDate: toIso(r.endDate),
         price: r.price ?? null,
-        status:r.status,
+        status: (r.status ?? null),
         thumbnail: r.images?.[0] ?? null // UNKNOWN: API uses thumbnail; ERD uses images[]
       }));
     }catch(e){
@@ -26,10 +35,19 @@ export class TourService {
   async getTourDetail(tourId: string){
     const t=await this.repo.getById(tourId);
     if(!t) throw new AppError(404,"TOUR_NOT_FOUND","Không tồn tại tour");
+    const toIso = (v:any)=>{
+      try{
+        if(!v) return null;
+        if(typeof v.toDate === 'function') return v.toDate().toISOString().slice(0,10);
+        if(typeof v._seconds === 'number') return new Date(v._seconds*1000).toISOString().slice(0,10);
+        if(typeof v === 'string') return new Date(v).toISOString().slice(0,10);
+      }catch(_){ }
+      return null;
+    };
     return {
       tourId: t.id, title:t.title,description:t.description,itinerary:t.itinerary,
-      startDate:t.startDate.toDate().toISOString().slice(0,10),
-      endDate:t.endDate.toDate().toISOString().slice(0,10),
+      startDate: toIso(t.startDate),
+      endDate: toIso(t.endDate),
       price:t.price ?? null,status:t.status,images:t.images ?? []
     };
   }

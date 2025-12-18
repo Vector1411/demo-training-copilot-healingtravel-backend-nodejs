@@ -14,6 +14,36 @@
       "name": "Public APIs",
       "item": [
         {
+          "name": "GET /api/v1/health - Health check",
+          "request": {
+            "method": "GET",
+            "header": [ { "key": "Accept", "value": "application/json" } ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/health",
+              "host": ["{{baseUrl}}"],
+              "path": ["api","v1","health"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const text = pm.response.text();",
+                  "pm.test('Response body is not empty', () => { if (!text || text.trim().length === 0) throw new Error('Empty response body'); });",
+                  "let res;",
+                  "try { res = pm.response.json(); } catch (e) { pm.test('Response is valid JSON', () => { throw e; }); }",
+                  "pm.test('Status code is 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Content-type is json', () => pm.response.to.have.header('Content-Type'));",
+                  "pm.test('Success flag true', () => pm.expect(res.success).to.eql(true));",
+                  "pm.test('Data.up is true', () => pm.expect(res.data && res.data.up).to.eql(true));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
           "name": "GET /api/v1/tours - List open tours",
           "request": {
             "method": "GET",

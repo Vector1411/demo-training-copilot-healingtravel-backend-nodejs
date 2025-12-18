@@ -32,7 +32,12 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "const res = pm.response.json();",
+                  "const text = pm.response.text();",
+                  "if (!text || text.trim().length === 0) {",
+                  "  pm.test('Response body is not empty', () => { throw new Error('Empty response body'); });",
+                  "}",
+                  "let res;",
+                  "try { res = pm.response.json(); } catch (e) { pm.test('Response is valid JSON', () => { throw e; }); }",
                   "pm.test('Status code is 200', () => pm.response.to.have.status(200));",
                   "pm.test('Response success flag is true', () => pm.expect(res.success).to.eql(true));",
                   "pm.test('Data is an array', () => pm.expect(Array.isArray(res.data)).to.be.true);",
@@ -69,7 +74,12 @@
               "script": {
                 "exec": [
                   "pm.test('Status code is 200 or 404', () => pm.expect([200,404]).to.include(pm.response.code));",
-                  "const res = pm.response.json();",
+                  "const text = pm.response.text();",
+                  "if (!text || text.trim().length === 0) {",
+                  "  pm.test('Response body is not empty', () => { throw new Error('Empty response body'); });",
+                  "}",
+                  "let res;",
+                  "try { res = pm.response.json(); } catch (e) { pm.test('Response is valid JSON', () => { throw e; }); }",
                   "pm.test('Response has success boolean', () => pm.expect(res).to.have.property('success'));",
                   "if (pm.response.code === 200) {",
                   "  pm.test('Success true and data has id/title', () => {",
@@ -112,7 +122,12 @@
               "script": {
                 "exec": [
                   "pm.test('Status code is 200 or 400', () => pm.expect([200,400]).to.include(pm.response.code));",
-                  "const res = pm.response.json();",
+                  "const text = pm.response.text();",
+                  "if (!text || text.trim().length === 0) {",
+                  "  pm.test('Response body is not empty', () => { throw new Error('Empty response body'); });",
+                  "}",
+                  "let res;",
+                  "try { res = pm.response.json(); } catch (e) { pm.test('Response is valid JSON', () => { throw e; }); }",
                   "if (pm.response.code === 200) {",
                   "  pm.test('Registration succeeded', () => pm.expect(res.success).to.eql(true));",
                   "} else {",
@@ -150,7 +165,12 @@
               "script": {
                 "exec": [
                   "pm.test('Status code is 200 or 401/501', () => pm.expect([200,401,501]).to.include(pm.response.code));",
-                  "const res = pm.response.json();",
+                  "const text = pm.response.text();",
+                  "if (!text || text.trim().length === 0) {",
+                  "  pm.test('Response body is not empty', () => { throw new Error('Empty response body'); });",
+                  "}",
+                  "let res;",
+                  "try { res = pm.response.json(); } catch (e) { pm.test('Response is valid JSON', () => { throw e; }); }",
                   "if (pm.response.code === 200) {",
                   "  pm.test('Response returns token and expiredAt', () => {",
                   "    pm.expect(res.success).to.eql(true);",
@@ -190,7 +210,12 @@
               "script": {
                 "exec": [
                   "pm.test('Status code is 200 or 401', () => pm.expect([200,401]).to.include(pm.response.code));",
-                  "const res = pm.response.json();",
+                  "const text = pm.response.text();",
+                  "if (!text || text.trim().length === 0) {",
+                  "  pm.test('Response body is not empty', () => { throw new Error('Empty response body'); });",
+                  "}",
+                  "let res;",
+                  "try { res = pm.response.json(); } catch (e) { pm.test('Response is valid JSON', () => { throw e; }); }",
                   "if (pm.response.code === 200) {",
                   "  pm.test('Success and data is array', () => {",
                   "    pm.expect(res.success).to.eql(true);",
@@ -229,7 +254,12 @@
               "script": {
                 "exec": [
                   "pm.test('Status code is 200 or 401', () => pm.expect([200,401]).to.include(pm.response.code));",
-                  "const res = pm.response.json();",
+                  "const text = pm.response.text();",
+                  "if (!text || text.trim().length === 0) {",
+                  "  pm.test('Response body is not empty', () => { throw new Error('Empty response body'); });",
+                  "}",
+                  "let res;",
+                  "try { res = pm.response.json(); } catch (e) { pm.test('Response is valid JSON', () => { throw e; }); }",
                   "if (pm.response.code === 200) {",
                   "  pm.test('Create returned success', () => pm.expect(res.success).to.eql(true));",
                   "  if (res.data && res.data.id) pm.environment.set('tourId', res.data.id);",
@@ -266,7 +296,12 @@
               "script": {
                 "exec": [
                   "pm.test('Status code is 200 or 401/404', () => pm.expect([200,401,404]).to.include(pm.response.code));",
-                  "const res = pm.response.json();",
+                  "const text = pm.response.text();",
+                  "if (!text || text.trim().length === 0) {",
+                  "  pm.test('Response body is not empty', () => { throw new Error('Empty response body'); });",
+                  "}",
+                  "let res;",
+                  "try { res = pm.response.json(); } catch (e) { pm.test('Response is valid JSON', () => { throw e; }); }",
                   "if (pm.response.code === 200) {",
                   "  pm.test('Update success', () => pm.expect(res.success).to.eql(true));",
                   "} else if (pm.response.code === 404) {",
@@ -297,7 +332,12 @@
               "script": {
                 "exec": [
                   "pm.test('Status code is 200 or 401/404', () => pm.expect([200,401,404]).to.include(pm.response.code));",
-                  "const res = pm.response.json();",
+                  "const text = pm.response.text();",
+                  "if (!text || text.trim().length === 0) {",
+                  "  pm.test('Response body is not empty', () => { throw new Error('Empty response body'); });",
+                  "}",
+                  "let res;",
+                  "try { res = pm.response.json(); } catch (e) { pm.test('Response is valid JSON', () => { throw e; }); }",
                   "if (pm.response.code === 200) pm.test('Delete success', () => pm.expect(res.success).to.eql(true));",
                   "if (pm.response.code === 404) pm.test('Not found returns TOUR_NOT_FOUND', () => pm.expect(res.errorCode).to.eql('TOUR_NOT_FOUND'));",
                   "if (pm.response.code === 401) pm.test('Unauthorized returns AUTH_FAILED', () => pm.expect(res.errorCode).to.eql('AUTH_FAILED'));"

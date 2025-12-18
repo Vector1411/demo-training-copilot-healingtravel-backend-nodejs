@@ -17,7 +17,9 @@ export class RegistrationService{
   }
 
   async adminListRegistrations(tourId:string){
-    const rows=await this.regRepo.listByTourId(tourId);
+    const rows = tourId === "ALL"
+      ? await this.regRepo.listAll()
+      : await this.regRepo.listByTourId(tourId);
     // API-09 has no response schema in spec (UNKNOWN)
     return rows.map(r=>({
       id:r.id,tourId:r.tourId,fullName:r.fullName,phone:r.phone,

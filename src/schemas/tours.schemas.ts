@@ -1,7 +1,7 @@
 import { z } from "zod";
 export const TourStatusEnum = z.enum(["draft","open","closed"]);
 
-export const GetToursQuerySchema = z.object({ status: z.string().optional() });
+export const GetToursQuerySchema = z.object({ status: TourStatusEnum.optional() });
 
 export const TourIdParamsSchema = z.object({ tourId: z.string().min(1) });
 

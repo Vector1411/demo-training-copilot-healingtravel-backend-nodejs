@@ -33,4 +33,13 @@ describe('RegistrationService (unit)', ()=>{
     const svc = new RegistrationService();
     await expect(svc.createRegistration({ tourId:'t1', fullName:'A', phone:'0909' } as any)).rejects.toMatchObject({ errorCode: 'REGISTRATION_FAILED' });
   });
+
+  it('adminListRegistrations - tourId=ALL -> uses listAll', async ()=>{
+    const rows = [{ id:'r1', tourId:'t1', fullName:'A', phone:'0909', createdAt: { toDate: () => new Date('2025-01-01T00:00:00Z') } as any } as any];
+    const allSpy = vi.spyOn(RegistrationRepository.prototype, 'listAll').mockResolvedValue(rows as any);
+    const svc = new RegistrationService();
+    const result = await svc.adminListRegistrations('ALL');
+    expect(allSpy).toHaveBeenCalled();
+    expect(result[0]).toMatchObject({ id:'r1', tourId:'t1', fullName:'A' });
+  });
 });

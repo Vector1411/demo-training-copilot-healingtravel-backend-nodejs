@@ -21,4 +21,8 @@ export class RegistrationRepository {
     const snap=await this.col.where("tourId","==",tourId).get();
     return snap.docs.map(d=>({ id:d.id, ...(d.data() as RegistrationDoc) }));
   }
+  async listAll(){
+    const snap=await this.col.get();
+    return snap.docs.map(d=>({ id:d.id, ...(d.data() as RegistrationDoc) }));
+  }
 }

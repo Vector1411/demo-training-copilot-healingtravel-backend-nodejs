@@ -2,7 +2,7 @@ import { Router } from "express";
 import { toursRouter } from "./tours.routes.js";
 import { registrationsRouter } from "./registrations.routes.js";
 import { adminRouter } from "./admin.routes.js";
-import { healthRouter } from "./health.routes.js";
+import { healthRouter } from "./health.routes";
 export const routes = () => {
   const r=Router();
   r.use("/health", healthRouter());

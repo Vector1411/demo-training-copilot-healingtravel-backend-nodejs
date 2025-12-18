@@ -18,7 +18,15 @@ export type TourDoc = {
 export class TourRepository {
   private col = firestore.collection("tours");
   async listByStatus(status: string){
-    const snap = await this.col.where("status","==",status).get();
+    // Firestore values may have inconsistent casing (OPEN, open).
+    // Query in both lowercase and uppercase variants to be resilient.
+    const variants = Array.from(new Set([status, status.toLowerCase(), status.toUpperCase()]));
+    // If only one variant, use simple equality to avoid 'in' limitations.
+    if (variants.length === 1) {
+      const snap = await this.col.where("status","==",status).get();
+      return snap.docs.map(d=>({ id:d.id, ...(d.data() as TourDoc) }));
+    }
+    const snap = await this.col.where("status","in",variants).get();
     return snap.docs.map(d=>({ id:d.id, ...(d.data() as TourDoc) }));
   }
   async getById(tourId: string){
